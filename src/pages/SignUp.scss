@@ -45,3 +45,13 @@
         }
     }
 }
+
+.has-error {
+    .label.error-label {
+        color: red;
+    }
+
+    .control .input.error-input {
+        border-color: red;
+    }
+}

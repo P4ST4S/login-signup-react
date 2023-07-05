@@ -3,6 +3,9 @@ import "./SignUp.scss"
 
 
 function SignUp() {
+    const [errUsername, setErrUsername] = useState(false)
+    const [errEmail, setErrEmail] = useState(false)
+
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -26,13 +29,23 @@ function SignUp() {
                     username,
                     email,
                     password,
-                    passwordConfirmation
                 }),
             });
 
             if (response.ok) {
                 const data = await response.json()
+                alert("Your account has been created successfully")
+                setErrUsername(false)
+                setErrEmail(false)
                 console.log(data)
+            } else if (response.status === 400) {
+                const error = await response.json()
+                if (error.message.includes("Email")) {
+                    setErrEmail(true)
+                } else if (error.message.includes("Username")) {
+                    setErrUsername(true)
+                }
+                alert(error.message);
             } else {
                 const error = await response.json()
                 console.log(error)
@@ -46,11 +59,13 @@ function SignUp() {
         <div className="container">
             <h1 className="title">Sign Up</h1>
             <form onSubmit={handleSubmit}>
-                <div className="field">
-                    <label className="label">Username</label>
+                <div className={`field ${errUsername ? 'has-error' : ''}`}>
+                    <label className={`label ${errUsername ? 'error-label' : ''}`}>
+                        Username
+                    </label>
                     <div className="control">
                         <input
-                            className="input"
+                            className={`input ${errUsername ? 'error-input' : ''}`}
                             type="text"
                             placeholder="Username"
                             value={username}
@@ -59,11 +74,13 @@ function SignUp() {
                         />
                     </div>
                 </div>
-                <div className="field">
-                    <label className="label">Email</label>
+                <div className={`field ${errEmail ? 'has-error' : ''}`}>
+                    <label className={`label ${errEmail ? 'error-label' : ''}`}>
+                        Email
+                    </label>
                     <div className="control">
                         <input
-                            className="input"
+                            className={`input ${errEmail ? 'error-input' : ''}`}
                             type="email"
                             placeholder='Email'
                             value={email}
