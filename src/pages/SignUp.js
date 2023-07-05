@@ -1,40 +1,46 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import "./SignUp.scss"
 
-const bcrypt = require('bcryptjs')
-
-function hashPassword(password) {
-    const salt = bcrypt.genSaltSync(10)
-    const hash = bcrypt.hashSync(password, salt)
-    return hash
-}
 
 function SignUp() {
-    const [hashedPassword, setHashedPassword] = useState('')
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [passwordConfirmation, setPasswordConfirmation] = useState('')
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault()
 
-        console.log('username', username)
-        console.log('email', email)
         if (password !== passwordConfirmation) {
             alert('Passwords do not match')
             return
-        } else {
-            const hashed = hashPassword(password)
-            setHashedPassword(hashed)
+        }
+
+        try {
+            const response = await fetch("http://localhost:5000/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username,
+                    email,
+                    password,
+                    passwordConfirmation
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json()
+                console.log(data)
+            } else {
+                const error = await response.json()
+                console.log(error)
+            }
+        } catch (error) {
+            console.log(error)
         }
     }
-
-    useEffect(() => {
-        if (hashedPassword) {
-            console.log('hashedPassword', hashedPassword);
-        }
-    }, [hashedPassword])
 
     return (
         <div className="container">
