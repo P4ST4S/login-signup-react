@@ -42,8 +42,10 @@ function SignUp() {
                 const error = await response.json()
                 if (error.message.includes("Email")) {
                     setErrEmail(true)
+                    setErrUsername(false)
                 } else if (error.message.includes("Username")) {
                     setErrUsername(true)
+                    setErrEmail(false)
                 }
                 alert(error.message);
             } else {
