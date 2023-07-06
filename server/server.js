@@ -1,3 +1,5 @@
+const { emailExist, usernameExist, insertUser, internalServerError } = require('./utils.js');
+
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -22,30 +24,15 @@ app.post('/signup', async (req, res) => {
     const collection = db.collection('users');
 
     try {
-        const existingMail = await collection.findOne({ email });
-        if (existingMail) {
-            return res.status(400).json({ message: 'Email already exists' });
-        }
+        const emailExistVal = await emailExist(res, collection, email);
+        if (emailExistVal) return;
 
-        const existingUsername = await collection.findOne({ username });
-        if (existingUsername) {
-            return res.status(400).json({ message: 'Username already exists' });
-        }
+        const userExistVal = await usernameExist(res, collection, username);
+        if (userExistVal) return;
 
-        const result = await collection.insertOne({ username, email, password: hash })
-            .then((result) => {
-                console.log(result);
-                res.status(201).json({ message: 'User created' });
-            })
-            .catch((err) => {
-                console.error(err);
-                res.status(500).json({ message: 'Internal server error' });
-            });
-
-        console.log(result);
+        await insertUser(collection, res, username, email, hash);
     } catch (err) {
-        console.log(err);
-        return res.status(500).json({ message: 'Internal server error' });
+        return internalServerError(res, err);
     }
 });
 
